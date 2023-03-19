@@ -6,10 +6,9 @@ async function getRoutineActivityById(id) {
       rows: [routineActivity],
     } = await client.query(
       `SELECT * FROM routine_activities
-        WHERE id = $1`,
-      [id]
+        WHERE "routineId" =${id}`
     );
-
+    console.log(routineActivity, "This is line 12")
     return routineActivity;
   } catch (error) {
     throw error;
@@ -38,50 +37,66 @@ async function addActivityToRoutine({
   }
 }
 
-async function updateRoutineActivity({ id, count, duration }) {
+async function updateRoutineActivity(routineActivityToUpdate) {
+  console.log(routineActivityToUpdate, "This is the data to update count/duration - line 42")
+
+  const id = routineActivityToUpdate.id;
+  const setString = Object.keys(routineActivityToUpdate).map(
+    (key, index) => `"${key}" = $${index + 1}`
+  ).join(',');
+
+  if (setString.length === 0) {
+    return;
+  }
+  console.log(setString, "This is the setString - line 51")
+
   try {
     const {
-      rows: [routineActivity],
+      rows: [routine],
     } = await client.query(
       `UPDATE routine_activities
-        SET count = $2, duration = $3,
-        WHERE id = $1`,
-      [id, count, duration]
+        SET ${setString}
+        WHERE id = ${id}
+        RETURNING *;`, Object.values(routineActivityToUpdate)
     );
-    console.log(routineActivity);
-    return routineActivity;
+    console.log(routine, "This is line 62 - suppopsed to update routine Activity");
+    return routine;
   } catch (error) {
     throw error;
   }
 }
 
 async function destroyRoutineActivity(id) {
+  console.log(id, "This is the routine Activity to Delete")
+
   try {
     const {
-      rows: [routineActivity],
+      rows: [routineActivityDeleted],
     } = await client.query(
       `DELETE FROM routine_activities
-       WHERE id = $1`,
-      [id]
+       WHERE id = ${id}
+       Returning *`,
     );
-
-    return routineActivity;
+    console.log(routineActivityDeleted, "Deleted Routine Activity")
+    return routineActivityDeleted;
   } catch (error) {
     throw error;
   }
 }
 
-async function getRoutineActivitiesByRoutine({ id }) {
+async function getRoutineActivitiesByRoutine({ id: routineId }) {
   try {
-    const {
-      rows: [routineActivities],
-    } = await client.query(
-      `SELECT * FROM routine_activities
-        WHERE "routineId" = $1`,
-      [id]
+    const { rows } = await client.query(
+      `SELECT "activityId" FROM routine_activities
+        WHERE "routineId" = ${routineId};`
     );
+    // console.log(routineActivity.id, "This is line id - 79", routineActivity.duration, "This is actitivityID")
 
-    return routineActivities;
+    // const returnedRoutineActivityId = routineActivity.id;
+    // console.log(returnedRoutineActivityId, "This is line id - 82", routineActivity.duration, "This is actitivityID")
+
+    console.log(rows, "This is line 84 - rows")
+    return rows;
   } catch (error) {
     throw error;
   }

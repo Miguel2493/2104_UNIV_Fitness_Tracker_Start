@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 
 const apiRouter = require('./api');
 const { client } = require('./db');
+const userRouter = require("./api/users");
 
 const PORT = 3000;
 
@@ -22,13 +23,16 @@ app.use(morgan('dev'));
 
 app.use(bodyParser.json());
 
+
+
 app.use((req, res, next) => {
-    console.log("Body is now", req.body);
+    console.log("Body is now - This is line 26", req.body);
+    // res.send("This is main")
     next();
 })
 
 app.use('/api', apiRouter);
-
+app.use('/api', userRouter);
 // app.get('/health', function (req, res, next) {
 //     res.json({ msg: 'This is CORS-enabled for all origins!' })
 // });
