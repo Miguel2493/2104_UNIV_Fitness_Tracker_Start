@@ -35,23 +35,34 @@ async function getActivityById(id) {
        WHERE id = $1;`,
       [id]
     );
-
+    console.log(activity, "This is line 38")
     return activity;
   } catch (error) {
     throw error;
   }
 }
 
-async function updateActivity({ id, name, description }) {
+async function updateActivity(activityToUpdate) {
+
+  const id = activityToUpdate.id;
+  const setString = Object.keys(activityToUpdate).map(
+    (key, index) => `"${key}" = $${index + 1}`
+  ).join(',');
+
+  if (setString.length === 0) {
+    return;
+  }
+
   try {
+
     const {
       rows: [activity],
     } = await client.query(
       `UPDATE activities 
-      SET name = $2, description = $3,
-      WHERE id=$1;
-      `,
-      [id, name, description]
+      SET ${setString}
+      WHERE id=${id}
+      RETURNING *;
+      `, Object.values(activityToUpdate)
     );
     return activity;
   } catch (error) {

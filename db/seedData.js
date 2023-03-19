@@ -9,6 +9,7 @@ const {
   getRoutinesWithoutActivities,
   getAllActivities,
   addActivityToRoutine,
+  updateActivity,
 } = require("./index");
 
 async function dropTables() {
@@ -82,8 +83,7 @@ async function createInitialUsers() {
     ];
     const users = await Promise.all(usersToCreate.map(createUser));
 
-    console.log("Users created:");
-    console.log(users);
+    console.log("Users created:", users);
     console.log("Finished creating users!");
   } catch (error) {
     console.error("Error creating users!");
@@ -117,8 +117,7 @@ async function createInitialActivities() {
       activitiesToCreate.map(createActivity)
     );
 
-    console.log("activities created:");
-    console.log(activities);
+    console.log("activities created:", activities);
 
     console.log("Finished creating activities!");
   } catch (error) {
